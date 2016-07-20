@@ -2,6 +2,7 @@ library(maptools)
 library(reshape)
 library(splitstackshape)
 library(ggplot2)
+library(base)
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
 setwd("C:/Users/jflak/OneDrive/GitHub/")
@@ -93,7 +94,7 @@ data_cross_merged <- merge(data_cross_i, data_cross_l, by = "id_ad", all = TRUE)
 data_cross_merged <- merge(data_cross_merged, data_demdates, by = "id_ad", all = TRUE)
 
 
-#renames data_pop_nlights$id to data_pop_nlights$id_587
+#Renames data_pop_nlights$id to data_pop_nlights$id_587 so that it matches previously merged dataset
 names(data_pop_nlights)[names(data_pop_nlights)=="id"] <- "id_587"
 
 #Merges previous merged dataset with data_pop_nlights
@@ -108,11 +109,25 @@ names(data_cross_merged) <- gsub("ncc4_", "ntl_", names(data_cross_merged))
 #Removes the "e" from the end of the ntl variables
 names(data_cross_merged) <- gsub("(ntl_....)e", "\\1", names(data_cross_merged))
 
+#Renames data_cross_merged$id_587 to data_cross_merged$id to match the shapefile
+names(data_cross_merged)[names(data_cross_merged)=="id_587"] <- "id"
+
+
+#Merges previous merged dataset with the shapefile dataframe
+data_cross_merged_shp <- merge(shpfile_working, data_cross_merged, by = "id")
+
+#Coerces merged shapefile to a dataframe so it can be viewed in RStudio
+df_merged_shp <- as.data.frame(data_cross_merged_shp)
+
 
 #Views relevant dataframes
 View(data_cross_merged)
 View(data_cross_merged[101:132])
-
-
+View(df_shpfile)
+View(df_merged_shp[1:100])
+View(df_merged_shp[101:200])
+View(df_merged_shp[201:300])
+View(df_merged_shp[301:400])
+View(df_merged_shp[401:470])
 
 
