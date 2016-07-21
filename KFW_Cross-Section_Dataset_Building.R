@@ -5,6 +5,7 @@ library(ggplot2)
 library(base)
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
+#setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict")
 setwd("C:/Users/jflak/OneDrive/GitHub/")
 
 #clear variables and values
