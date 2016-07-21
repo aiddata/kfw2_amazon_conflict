@@ -22,8 +22,8 @@ rm(list = ls())
 
 
 #reads the data from the files
-data2011 <- read.csv(file = "Raw and Original Data/DemStages_FUNAI2011_BonnResearchers.csv", header=TRUE, sep = ',')
-data2016 <- read.csv(file = "Raw and Original Data/DemStages_FUNAI_2016_fromMLG.csv", header=TRUE, sep = ',')
+data2011 <- read.csv(file = "Raw_and_Orginal_Data/DemStages_FUNAI2011_BonnResearchers.csv", header=TRUE, sep = ',')
+data2016 <- read.csv(file = "Raw_and_Orginal_Data/DemStages_FUNAI_2016_fromMLG.csv", header=TRUE, sep = ',')
 
 
 print("START OF TABLES")
@@ -252,7 +252,7 @@ print(table_one)
 ####################################################Start of PPTAL Manipulation###################################
 
 #reads in PPTAL data
-dataPPTAL <- read.csv(file = "Raw and Original Data/PPTAL_151lands_demdates.csv", header=TRUE, sep = ',')
+dataPPTAL <- read.csv(file = "Raw_and_Orginal_Data/PPTAL_151lands_demdates.csv", header=TRUE, sep = ',')
 
 
 #renames id to id_587 in the PPTAL data so the id names match
@@ -468,8 +468,8 @@ print("=========================================================================
 
 
 #reads the violence data from the files
-data_iviolence <- read.csv(file = "Raw and Original Data/Final_IndividualViolence_CIMI (1).csv", header=TRUE, sep = ',')
-data_lviolence <- read.csv(file = "Raw and Original Data/Final_LandViolence_CIMI_new (2).csv", header=TRUE, sep = ',')
+data_iviolence <- read.csv(file = "Raw_and_Orginal_Data/Final_IndividualViolence_CIMI (1).csv", header=TRUE, sep = ',')
+data_lviolence <- read.csv(file = "Raw_and_Orginal_Data/Final_LandViolence_CIMI_new (2).csv", header=TRUE, sep = ',')
 
 
 #drops rows with missing ad_id
@@ -1459,11 +1459,11 @@ print(paste0("FUNAI2016_reg_ever: ", FUNAI2016_reg_ever))
 
 #Saving the important datasets - NOTE: Saves them in working directory
 #data_demdates <- data_merged
-#save(data_demdates, file = "Demarcation Date Data.Rda")
-#save(data_iviolence, file = "Individual Violence Data.Rda")
-#save(data_lviolence, file = "Land Violence Data.Rda")
-#save(iviolence_overlap, file = "Individual Violence Overlap.Rda")
-#save(lviolence_overlap, file = "Land Violence Overlap.Rda")
+#save(data_demdates, file = "Demarcation_Date_Data.Rda")
+#save(data_iviolence, file = "Individual_Violence_Data.Rda")
+#save(data_lviolence, file = "Land_Violence_Data.Rda")
+#save(iviolence_overlap, file = "Individual_Violence_Overlap.Rda")
+#save(lviolence_overlap, file = "Land_Violence_Overlap.Rda")
 
 
 #Opens some of the data in the viewer

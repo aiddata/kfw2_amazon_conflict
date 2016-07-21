@@ -19,14 +19,14 @@ shpfile_working = readShapePoly(shpfile)
 df_shpfile <- as.data.frame(shpfile_working)
 
 #load saved data
-load("kfw2_amazon_conflict/Interim Data/Land Violence Data.Rda")
-load("kfw2_amazon_conflict/Interim Data/Individual Violence Data.Rda")
-load("kfw2_amazon_conflict/Interim Data/Demarcation Date Data.Rda")
-load("kfw2_amazon_conflict/Interim Data/Land Violence Overlap.Rda")
-load("kfw2_amazon_conflict/Interim Data/Individual Violence Overlap.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Land Violence Data.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Individual Violence Data.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Demarcation Date Data.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Land Violence Overlap.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Individual Violence Overlap.Rda")
 
 #reads the population and nighttime lights data from file
-data_pop_nlights <- read.csv(file = "kfw2_amazon_conflict/Raw and Original Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
+data_pop_nlights <- read.csv(file = "kfw2_amazon_conflict/Raw_and_Original_Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
 
 
 #EXAMPLE for counting frequency of violence - from Preliminary_Delimitation_and_Conflict_Data_Analysis.R
@@ -90,15 +90,15 @@ data_cross_l$lfreq2014[is.element(data_cross_l$id_ad, data_lviolence$id_ad[data_
 
 
 #Creates a merged dataset with the individual and land data, as well as the demarcation dates
-data_cross_merged <- merge(data_cross_i, data_cross_l, by = "id_ad", all = TRUE)
-data_cross_merged <- merge(data_cross_merged, data_demdates, by = "id_ad", all = TRUE)
+data_cross_merged <- merge.data.frame(data_cross_i, data_cross_l, by = "id_ad", all = TRUE)
+data_cross_merged <- merge.data.frame(data_cross_merged, data_demdates, by = "id_ad", all = TRUE)
 
 
 #Renames data_pop_nlights$id to data_pop_nlights$id_587 so that it matches previously merged dataset
 names(data_pop_nlights)[names(data_pop_nlights)=="id"] <- "id_587"
 
 #Merges previous merged dataset with data_pop_nlights
-data_cross_merged <- merge(data_cross_merged, data_pop_nlights, by = "id_587")
+data_cross_merged <- merge.data.frame(data_cross_merged, data_pop_nlights, by = "id_587")
 
 #Renames gpw4_*e to Pop_*e (in data_cross_merged)
 names(data_cross_merged) <- gsub("gpw4_*", "Pop_", names(data_cross_merged))
