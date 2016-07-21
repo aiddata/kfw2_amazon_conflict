@@ -1,8 +1,5 @@
 library(maptools)
-library(reshape)
-library(splitstackshape)
-library(ggplot2)
-library(base)
+
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
 #setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict")
@@ -20,11 +17,11 @@ shpfile_working = readShapePoly(shpfile)
 df_shpfile <- as.data.frame(shpfile_working)
 
 #load saved data
-load("kfw2_amazon_conflict/Interim_Data/Land Violence Data.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Individual Violence Data.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Demarcation Date Data.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Land Violence Overlap.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Individual Violence Overlap.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Land_Violence_Data.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Individual_Violence_Data.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Demarcation_Date_Data.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Land_Violence_Overlap.Rda")
+load("kfw2_amazon_conflict/Interim_Data/Individual_Violence_Overlap.Rda")
 
 #reads the population and nighttime lights data from file
 data_pop_nlights <- read.csv(file = "kfw2_amazon_conflict/Raw_and_Original_Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
@@ -122,13 +119,13 @@ df_merged_shp <- as.data.frame(data_cross_merged_shp)
 
 
 #Views relevant dataframes
-View(data_cross_merged)
-View(data_cross_merged[101:132])
-View(df_shpfile)
-View(df_merged_shp[1:100])
-View(df_merged_shp[101:200])
-View(df_merged_shp[201:300])
-View(df_merged_shp[301:400])
-View(df_merged_shp[401:470])
+#View(data_cross_merged)
+#View(data_cross_merged[101:132])
+#View(df_shpfile)
+#View(df_merged_shp[1:100])
+#View(df_merged_shp[101:200])
+#View(df_merged_shp[201:300])
+#View(df_merged_shp[301:400])
+#View(df_merged_shp[401:470])
 
 
