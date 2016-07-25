@@ -2,29 +2,29 @@ library(maptools)
 
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
-#setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict")
-setwd("C:/Users/jflak/OneDrive/GitHub/")
+setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
+#setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
 
 #clear variables and values
 rm(list = ls())
 
 
 #loads the shape file
-shpfile = "KFW_Amazon/processed_data/kfw_analysis_inputs.shp"
+shpfile = "Raw_and_Original_Data/kfw_analysis_inputs.shp"
 shpfile_working = readShapePoly(shpfile)
 
 #makes a dataframe of the shapefile data
 df_shpfile <- as.data.frame(shpfile_working)
 
 #load saved data
-load("kfw2_amazon_conflict/Interim_Data/Land_Violence_Data.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Individual_Violence_Data.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Demarcation_Date_Data.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Land_Violence_Overlap.Rda")
-load("kfw2_amazon_conflict/Interim_Data/Individual_Violence_Overlap.Rda")
+load("Interim_Data/Land_Violence_Data.Rda")
+load("Interim_Data/Individual_Violence_Data.Rda")
+load("Interim_Data/Demarcation_Date_Data.Rda")
+load("Interim_Data/Land_Violence_Overlap.Rda")
+load("Interim_Data/Individual_Violence_Overlap.Rda")
 
 #reads the population and nighttime lights data from file
-data_pop_nlights <- read.csv(file = "kfw2_amazon_conflict/Raw_and_Original_Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
+data_pop_nlights <- read.csv(file = "Raw_and_Original_Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
 
 
 #EXAMPLE for counting frequency of violence - from Preliminary_Delimitation_and_Conflict_Data_Analysis.R
@@ -110,6 +110,8 @@ names(data_cross_merged) <- gsub("(ntl_....)e", "\\1", names(data_cross_merged))
 #Renames data_cross_merged$id_587 to data_cross_merged$id to match the shapefile
 names(data_cross_merged)[names(data_cross_merged)=="id_587"] <- "id"
 
+#deletes SP_ID column from data_cross_merged
+data_cross_merged$SP_ID <- NULL
 
 #Merges previous merged dataset with the shapefile dataframe
 data_cross_merged_shp <- merge(shpfile_working, data_cross_merged, by = "id")
