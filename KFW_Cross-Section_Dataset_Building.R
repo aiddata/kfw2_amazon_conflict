@@ -120,6 +120,17 @@ data_cross_merged_shp <- merge(shpfile_working, data_cross_merged, by = "id")
 df_merged_shp <- as.data.frame(data_cross_merged_shp)
 
 
+#renames variable with accent that was causing problems from data_demdates, and saves the 
+#file with that variable renamed - NOTE: this is done now, no need to run this code again
+#colnames(data_demdates)[11] <- "Situa"
+#save(data_demdates, file = "Demarcation_Date_Data.Rda")
+
+
+#saves the merged shape file
+#write(data_cross_merged_shp, file = "Interim_Data/data_cross_merged_shp.shp")
+writePolyShape(data_cross_merged_shp, "shpfilecross", factor2char = TRUE, max_nchar = 254)
+
+
 #Views relevant dataframes
 #View(data_cross_merged)
 #View(data_cross_merged[101:132])
