@@ -126,9 +126,8 @@ df_merged_shp <- as.data.frame(data_cross_merged_shp)
 #save(data_demdates, file = "Demarcation_Date_Data.Rda")
 
 
-#saves the merged shape file
-#write(data_cross_merged_shp, file = "Interim_Data/data_cross_merged_shp.shp")
-writePolyShape(data_cross_merged_shp, "shpfilecross", factor2char = TRUE, max_nchar = 254)
+#saves the merged shape file - NOTE: this is done now, no need to run this code again
+#writePolyShape(data_cross_merged_shp, "shpfilecross", factor2char = TRUE, max_nchar = 254)
 
 
 #Views relevant dataframes
@@ -139,6 +138,4 @@ writePolyShape(data_cross_merged_shp, "shpfilecross", factor2char = TRUE, max_nc
 #View(df_merged_shp[101:200])
 #View(df_merged_shp[201:300])
 #View(df_merged_shp[301:400])
-#View(df_merged_shp[401:470])
-
-
+#View(df_merged_shp[401:469])
