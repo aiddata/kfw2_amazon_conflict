@@ -16,8 +16,6 @@ library(reshape2)
 #Library that handles matching
 library(MatchIt)
 
-library(SCI)
-
 
 #Run the code to build the dataset
 #source('KFW_Cross-Section_Dataset_Building.R')
@@ -50,7 +48,9 @@ dta_shp$prelevel_ndvimean <- dta_shp$MeanL_2003
 dta_shp$prelevel_ndvimax <- dta_shp$MaxL_2003
 
 dta_shp$prelevel_iviolence <- dta_shp$ifreq2003
+dta_shp$prelevel_iviolence[is.na(dta_shp$ifreq2003) & !is.na(dta_shp$ifreq_tota)] <- 0
 dta_shp$prelevel_lviolence <- dta_shp$lfreq2003
+dta_shp$prelevel_lviolence[is.na(dta_shp$lfreq2003) & !is.na(dta_shp$lfreq_tota)] <- 0
 
 
 #Make Pre-Trend Values (1982-2003)
@@ -83,10 +83,58 @@ dta_shp$postrend_ndvimax <- timeRangeTrend(dta_shp,"MaxL_[0-9][0-9][0-9][0-9]",2
 dta_shp$postrend_ntl <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",2004,2014,"id")
 
 
-#Make Pop pre-change value
+#Make Pop pretrend value
 dta_shp$pretrend_pop <- dta_shp$Pop_2000_x - dta_shp$Pop_1990
 
 
+#Make a binary for ever demarcated vs. never demarcated
+dta_shp@data["DemBin"] <- 0
+dta_shp@data$NA_check <- 0
+dta_shp@data$NA_check[is.na(dta_shp@data$demend_y)] <- 1
+dta_shp@data$DemBin[dta_shp@data$NA_check != 1] <- 1
+
+#demtable <- table(dtashp@data$DemBin)
+#View(demtable)
+
+
+
+#Make a binary for treated (demarcated 2004-2008)
+dta_shp@data["Treat"] <- 0
+dta_shp@data$NA_list <- 1
+dta_shp@data$NA_list[!is.na(dta_shp@data$demend_y) & (dta_shp@data$demend_y > 2003 & dta_shp@data$demend_y < 2009)] <- 0
+dta_shp@data$Treat[dta_shp@data$NA_list == 0] <- 1
+
+
+#Eliminate lands that were demarcated, but not during 2004-2008
+check_shp <- dta_shp[dta_shp@data$NA_check != 0 | dta_shp@data$Treat == 1,]
+dta_shp <- check_shp
+
+
+aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
+  "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_iviolence", "prelevel_lviolence", 
+  "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax", 
+  "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "pretrend_pop", "Slope", "Elevation", "Riv_Dist", "Road_dist",
+  "postrend_pmean", "postrend_pmin", "postrend_pmax", "postrend_tmean", "postrend_tmin", "postrend_tmax", 
+  "postrend_ndvimean", "postrend_ndvimax", "postrend_ntl")
+
+dta_shp <- dta_shp[complete.cases(dta_shp@data[aVars]),]
+
+matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+                           prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
+                           pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
+                           pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist +
+                           postrend_pmean + postrend_pmin + postrend_pmax + postrend_tmean + postrend_tmin + postrend_tmax + 
+                           postrend_ndvimean + postrend_ndvimax + postrend_ntl,
+                           data = dta_shp@data[aVars],
+                           method = "nearest", distance="logit",
+                           caliper = 0.5)
+
+
+
+
 #Views the data
-View(as.data.frame(dta_shp))
+View(as.data.frame(dta_shp)[1:100])
+View(as.data.frame(dta_shp)[101:200])
+View(as.data.frame(dta_shp)[201:300])
+View(as.data.frame(dta_shp)[301:400])
 View(as.data.frame(dta_shp)[401:499])
