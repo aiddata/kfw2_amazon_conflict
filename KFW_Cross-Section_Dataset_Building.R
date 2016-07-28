@@ -113,6 +113,28 @@ names(data_cross_merged)[names(data_cross_merged)=="id_587"] <- "id"
 #deletes SP_ID column from data_cross_merged
 data_cross_merged$SP_ID <- NULL
 
+
+#Beginning of renaming all of the variables longer than 10 characters so that
+#they don't get cut off when put into a shapefile
+
+names(data_cross_merged)[names(data_cross_merged)=="terrai_nome"] <- "ter_nome"
+
+names(data_cross_merged) <- gsub("identificada", "id", names(data_cross_merged))
+names(data_cross_merged) <- gsub("delimitada", "del", names(data_cross_merged))
+names(data_cross_merged) <- gsub("declarada", "dem", names(data_cross_merged))
+names(data_cross_merged) <- gsub("homologada", "appr", names(data_cross_merged))
+names(data_cross_merged) <- gsub("regularizada", "reg", names(data_cross_merged))
+
+names(data_cross_merged) <- gsub("2011$", "11", names(data_cross_merged))
+names(data_cross_merged) <- gsub("2016$", "16", names(data_cross_merged))
+
+names(data_cross_merged) <- gsub("day", "d", names(data_cross_merged))
+names(data_cross_merged) <- gsub("month", "m", names(data_cross_merged))
+names(data_cross_merged) <- gsub("year", "y", names(data_cross_merged))
+
+names(data_cross_merged) <- gsub("(.+)_extra(.+)", "ex\\1\\2", names(data_cross_merged))
+
+
 #Merges previous merged dataset with the shapefile dataframe
 data_cross_merged_shp <- merge(shpfile_working, data_cross_merged, by = "id")
 
@@ -134,8 +156,8 @@ df_merged_shp <- as.data.frame(data_cross_merged_shp)
 #View(data_cross_merged)
 #View(data_cross_merged[101:132])
 #View(df_shpfile)
-#View(df_merged_shp[1:100])
-#View(df_merged_shp[101:200])
-#View(df_merged_shp[201:300])
-#View(df_merged_shp[301:400])
-#View(df_merged_shp[401:469])
+View(df_merged_shp[1:100])
+View(df_merged_shp[101:200])
+View(df_merged_shp[201:300])
+View(df_merged_shp[301:400])
+View(df_merged_shp[401:469])
