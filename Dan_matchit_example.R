@@ -2,7 +2,7 @@
 
 library(MatchIt)
 library(devtools)
-detach("package:MatchIt", unload=TRUE)
+#detach("package:MatchIt", unload=TRUE)
 #load_all("~/Desktop/Github/MatchIt/R")
 # library(devtools)
 # install_github("itpir/matchit")
@@ -14,11 +14,11 @@ setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict")
 
 
 #load saved data
-load("Interim Data/Land_Violence_Data.Rda")
-load("Interim Data/Individual_Violence_Data.Rda")
-load("Interim Data/Demarcation_Date_Data.Rda")
-load("Interim Data/Land_Violence_Overlap.Rda")
-load("Interim Data/Individual_Violence_Overlap.Rda")
+load("Interim_Data/Land_Violence_Data.Rda")
+load("Interim_Data/Individual_Violence_Data.Rda")
+load("Interim_Data/Demarcation_Date_Data.Rda")
+load("Interim_Data/Land_Violence_Overlap.Rda")
+load("Interim_Data/Individual_Violence_Overlap.Rda")
 
 #Make up a treatment
 data_iviolence["treatment.status"] <- 0
