@@ -15,6 +15,8 @@ library(maptools)
 library(reshape2)
 #Library that handles matching
 library(MatchIt)
+#Library that has old sci functions
+library(SCI)
 #detach("package:MatchIt", unload=TRUE)
 
 
@@ -53,6 +55,9 @@ dta_shp$prelevel_iviolence <- dta_shp$ifreq2003
 dta_shp$prelevel_iviolence[is.na(dta_shp$ifreq2003)] <- 0
 dta_shp$prelevel_lviolence <- dta_shp$lfreq2003
 dta_shp$prelevel_lviolence[is.na(dta_shp$lfreq2003)] <- 0
+
+#fills in 0s for NAs in lfreq_tota
+dta_shp$lfreq_tota[is.na(dta_shp$lfreq_tota)] <- 0
 
 
 #Make Pre-Trend Values (1982-2003)
@@ -142,20 +147,44 @@ matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin +
                            #caliper = 1)
 
 #prints the matchit results
-print(summary(matchit.results))
+#print(summary(matchit.results))
+
+#makes a new dataframe with the matched pair ids, to identify each pair
+df_pairs <- as.data.frame(matchit.results$match.matrix)
+df_pairs$treated_obs <- as.numeric(rownames(df_pairs))
+rownames(df_pairs) <- NULL
+colnames(df_pairs)[1] <- "untreated_obs"
+df_pairs$untreated_obs <- as.numeric(as.character(df_pairs$untreated_obs))
+df_pairs$pair_id <- as.numeric(rownames(df_pairs))
+View(df_pairs)
 
 #subsets the data to only the matched data
 modelData <- match.data(matchit.results)
+dta_shp_subset <- dta_shp
+dta_shp_subset@data$id_present <- (dta_shp_subset$id %in% modelData$id)
+dta_shp_subset@data <- dta_shp_subset@data[dta_shp_subset$id_present == TRUE,]
+dta_shp@data <- dta_shp_subset@data
+
 #modelData$lfreq_tota <- subset(dta_shp$lfreq_tota, dta_shp$id)
-modelData <- merge.default(modelData, dta_shp@data["id", "lfreq_tota"], by = id)
+modelData <- merge.default(modelData, dta_shp@data[c("id", "lfreq_tota")], by = "id")
+modelData$id <- modelData$id - 1
 
+modelData$pair_id <- NA
+modelData$pair_id[modelData$Treat == 1] <- df_pairs$pair_id
+modelData$pair_id[modelData$Treat == 0] <- df_pairs$pair_id
 
-linearModel <- lm(lfreq_tota ~ Treat, 
+#linearModel <- lm(lfreq_tota ~ Treat + terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+#                  prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
+#                  pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
+#                  pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist +
+#                  posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
+#                  posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl + factor(id),
+#                  data = modelData)
+
+linearModel <- lm(lfreq_tota ~ Treat + factor(id),
                   data = modelData)
 
-
-
-
+summary(linearModel)
 
 
 
