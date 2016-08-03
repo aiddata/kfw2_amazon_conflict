@@ -27,8 +27,8 @@ load("Interim_Data/Individual_Violence_Overlap.Rda")
 data_pop_nlights <- read.csv(file = "Raw_and_Original_Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
 
 
-#EXAMPLE for counting frequency of violence - from Preliminary_Delimitation_and_Conflict_Data_Analysis.R
-#counts frequency of each id_ad in the data (number of incidences of violence per unit)
+##EXAMPLE for counting frequency of violence - from Preliminary_Delimitation_and_Conflict_Data_Analysis.R
+##counts frequency of each id_ad in the data (number of incidences of violence per unit)
 #iviolence_overlap$freq <- table(data_iviolence$id_ad)
 #lviolence_overlap$freq <- table(data_lviolence$id_ad)
 
@@ -43,7 +43,7 @@ data_iviolence$year <- as.integer(as.character(data_iviolence$year))
 data_lviolence$year <- as.integer(as.character(data_lviolence$year))
 
 
-#TEST for counting violence incidents for one year - not necessary code for final product
+##TEST for counting violence incidents for one year - not necessary final code
 #iviolence_count2003 <- table(data_iviolence$id_ad[data_iviolence$year == 2003])
 
 
@@ -54,7 +54,7 @@ names(data_cross_i)[names(data_cross_i)=="freq"] <- "ifreq_total"
 names(data_cross_l)[names(data_cross_l)=="freq"] <- "lfreq_total"
 
 
-#TEST for creating new columns with violence counts - not necessary code for final product
+##TEST for creating new columns with violence counts - not necessary final code
 #data_cross_i$ifreq2003[data_cross_i$id_ad >= 5100] <- 1
 #data_cross_i$ifreq2003[is.element(data_cross_i$id_ad, data_iviolence$id_ad[data_iviolence$year == 2003])] <- 1
 
@@ -98,11 +98,12 @@ names(data_pop_nlights)[names(data_pop_nlights)=="id"] <- "id_587"
 #Merges previous merged dataset with data_pop_nlights
 data_cross_merged <- merge.data.frame(data_cross_merged, data_pop_nlights, by = "id_587")
 
-#Renames gpw4_*e to Pop_*e (in data_cross_merged)
-names(data_cross_merged) <- gsub("gpw4_*", "Pop_", names(data_cross_merged))
+#NOTE: I use '*' in my comments here to refer to 0 or more characters (* is used for that in Stata), but that is not how the syntax works in the code in R;
+#Renames gpw4_* to Pop_* (in data_cross_merged)
+names(data_cross_merged) <- gsub("gpw4_", "Pop_", names(data_cross_merged))
 #Removes the "e" from the end of the Pop variables
 names(data_cross_merged) <- gsub("(Pop_....)e", "\\1", names(data_cross_merged))
-#Renames ncc4_*e to ntl_*e (in data_cross_merged)
+#Renames ncc4_* to ntl_* (in data_cross_merged)
 names(data_cross_merged) <- gsub("ncc4_", "ntl_", names(data_cross_merged))
 #Removes the "e" from the end of the ntl variables
 names(data_cross_merged) <- gsub("(ntl_....)e", "\\1", names(data_cross_merged))
@@ -142,17 +143,17 @@ data_cross_merged_shp <- merge(shpfile_working, data_cross_merged, by = "id")
 df_merged_shp <- as.data.frame(data_cross_merged_shp)
 
 
-#renames variable with accent that was causing problems from data_demdates, and saves the 
-#file with that variable renamed - NOTE: this is done now, no need to run this code again
+##renames variable with accent that was causing problems from data_demdates, and saves the 
+##file with that variable renamed - NOTE: this is done now, no need to run this code again
 #colnames(data_demdates)[11] <- "Situa"
 #save(data_demdates, file = "Demarcation_Date_Data.Rda")
 
 
-#saves the merged shape file - NOTE: this is done now, no need to run this code again
+##saves the merged shape file - NOTE: this is done now, no need to run this code again
 #writePolyShape(data_cross_merged_shp, "shpfilecross", factor2char = TRUE, max_nchar = 254)
 
 
-#Views relevant dataframes
+##Views relevant dataframes
 #View(data_cross_merged)
 #View(data_cross_merged[101:132])
 #View(df_shpfile)

@@ -13,19 +13,10 @@ library(rgeos)
 library(maptools)
 #tools for data manipulation
 library(reshape2)
-#Library that handles matching
+#library that handles matching
 library(MatchIt)
-#Library that has old sci functions
+#library that has old sci functions (like timeRangeTrend)
 library(SCI)
-#detach("package:MatchIt", unload=TRUE)
-
-
-
-#Run the code to build the dataset
-#source('KFW_Cross-Section_Dataset_Building.R')
-
-#clears unneeded variables and values
-#rm(list = (ls()[ls()!="df_merged_shp"]))
 
 
 shp_file <- "Processed_Data/shpfilecross.shp"
@@ -38,7 +29,7 @@ dta_shp@data$proj_check[is.na(dta_shp@data$reu_id)] <- 1
 proj_shp <- dta_shp[dta_shp@data$proj_check !=1,]
 dta_shp <- proj_shp
 
-
+####Creating Pre, Post, etc. Variables####
 #Make Pre-Level Values (2003)
 dta_shp$prelevel_pmean <- dta_shp$MeanP_2003
 dta_shp$prelevel_pmin <- dta_shp$MinP_2003
@@ -51,10 +42,13 @@ dta_shp$prelevel_tmax <- dta_shp$MaxT_2003
 dta_shp$prelevel_ndvimean <- dta_shp$MeanL_2003
 dta_shp$prelevel_ndvimax <- dta_shp$MaxL_2003
 
+dta_shp$prelevel_ntl <- dta_shp$ntl_2003
+
 dta_shp$prelevel_iviolence <- dta_shp$ifreq2003
 dta_shp$prelevel_iviolence[is.na(dta_shp$ifreq2003)] <- 0
 dta_shp$prelevel_lviolence <- dta_shp$lfreq2003
 dta_shp$prelevel_lviolence[is.na(dta_shp$lfreq2003)] <- 0
+
 
 #fills in 0s for NAs in lfreq_tota
 dta_shp$lfreq_tota[is.na(dta_shp$lfreq_tota)] <- 0
@@ -71,11 +65,11 @@ dta_shp$pretrend_tmax <- timeRangeTrend(dta_shp,"MaxT_[0-9][0-9][0-9][0-9]",1982
 
 dta_shp$pretrend_ndvimean <- timeRangeTrend(dta_shp,"MeanL_[0-9][0-9][0-9][0-9]",1982,2003,"id")
 dta_shp$pretrend_ndvimax <- timeRangeTrend(dta_shp,"MaxL_[0-9][0-9][0-9][0-9]",1982,2003,"id")
-#This is the nighttime lights pretrend. Note that it only runs 1992-2003
+#This is the nighttime lights pretrend. Note that it only runs 1992-2003, not 1982-2003
 dta_shp$pretrend_ntl <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",1992,2003,"id")
 
 
-#Make Post-Trend Values ()
+#Make Post-Trend Values
 dta_shp$posttrend_pmean <- timeRangeTrend(dta_shp,"MeanP_[0-9][0-9][0-9][0-9]",2003,2014,"id")
 dta_shp$posttrend_pmin <- timeRangeTrend(dta_shp,"MinP_[0-9][0-9][0-9][0-9]",2003,2014,"id")
 dta_shp$posttrend_pmax <- timeRangeTrend(dta_shp,"MaxP_[0-9][0-9][0-9][0-9]",2003,2014,"id")
@@ -86,16 +80,11 @@ dta_shp$posttrend_tmax <- timeRangeTrend(dta_shp,"MaxT_[0-9][0-9][0-9][0-9]",200
 
 dta_shp$posttrend_ndvimean <- timeRangeTrend(dta_shp,"MeanL_[0-9][0-9][0-9][0-9]",2003,2014,"id")
 dta_shp$posttrend_ndvimax <- timeRangeTrend(dta_shp,"MaxL_[0-9][0-9][0-9][0-9]",2003,2014,"id")
-#This is the nighttime lights posttrend.
+
 dta_shp$posttrend_ntl <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",2003,2014,"id")
 
-#dta_shp$posttrend_iviolence <- timeRangeTrend(dta_shp)
-
 #Make Pop pretrend value
-dta_shp$pretrend_pop <- dta_shp$Pop_2000_x - dta_shp$Pop_1990
-
-#Make the outcome variable
-#dta_shp$lviolence_outcome
+dta_shp$pretrend_pop <- dta_shp$Pop_2000_y - dta_shp$Pop_1990
 
 
 #Make a binary for ever demarcated vs. never demarcated
@@ -119,32 +108,40 @@ dta_shp@data$Treat[dta_shp@data$NA_list == 0] <- 1
 dta_shp@data <- subset(dta_shp@data, Treat == 1 | DemBin == 0)
 
 
-aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
-  "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_iviolence", "prelevel_lviolence", 
-  "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax", 
-  "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "pretrend_pop", "Slope", "Elevation", "Riv_Dist", "Road_dist",
-  "posttrend_pmean", "posttrend_pmin", "posttrend_pmax", "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
-  "posttrend_ndvimean", "posttrend_ndvimax", "posttrend_ntl", "id")
-
 #aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
-#  "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_iviolence", "prelevel_lviolence",
-#  "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax",
-#  "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "pretrend_pop", "Slope", "Elevation", "Riv_Dist", "Road_dist")
+#  "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_iviolence", "prelevel_lviolence", 
+#  "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax", 
+#  "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "pretrend_pop", "Slope", "Elevation", "Riv_Dist", "Road_dist",
+#  "posttrend_pmean", "posttrend_pmin", "posttrend_pmax", "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
+#  "posttrend_ndvimean", "posttrend_ndvimax", "posttrend_ntl", "id")
+
+aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
+  "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_ntl", "prelevel_iviolence", "prelevel_lviolence",
+  "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax",
+  "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "pretrend_pop", "Slope", "Elevation", "Riv_Dist", "Road_dist", "Pop_2000_y", "id")
 
 
 #cuts the dataset down to only complete cases (matchit won't work if there are NAs)
 dta_shp <- dta_shp[complete.cases(dta_shp@data[aVars]),]
 
 
+#matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+#                           prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
+#                           pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
+#                           pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist +
+#                           posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
+#                           posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl,
+#                           data = dta_shp@data[aVars],
+#                           method = "nearest", distance="logit")
+
+####MatchIt####
 matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
-                           prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
-                           pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
-                           pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist +
-                           posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
-                           posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl,
-                           data = dta_shp@data[aVars],
-                           method = "nearest", distance="logit")
-                           #caliper = 1)
+                             prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_ntl + prelevel_iviolence + prelevel_lviolence + 
+                             pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
+                             pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist + Pop_2000_y,
+                             data = dta_shp@data[aVars],
+                             method = "nearest", distance="logit")
+
 
 #prints the matchit results
 #print(summary(matchit.results))
@@ -156,7 +153,12 @@ rownames(df_pairs) <- NULL
 colnames(df_pairs)[1] <- "untreated_obs"
 df_pairs$untreated_obs <- as.numeric(as.character(df_pairs$untreated_obs))
 df_pairs$pair_id <- as.numeric(rownames(df_pairs))
+df_pairs <- data.frame(id = c(df_pairs$untreated_obs, df_pairs$treated_obs), pair_id = c(df_pairs$pair_id, df_pairs$pair_id))
 View(df_pairs)
+
+#df_test <- data.frame(x = c(df_pairs$untreated_obs, df_pairs$treated_obs), y = c(df_pairs$pair_id, df_pairs$pair_id))
+#View(df_test)
+
 
 #subsets the data to only the matched data
 modelData <- match.data(matchit.results)
@@ -165,29 +167,58 @@ dta_shp_subset@data$id_present <- (dta_shp_subset$id %in% modelData$id)
 dta_shp_subset@data <- dta_shp_subset@data[dta_shp_subset$id_present == TRUE,]
 dta_shp@data <- dta_shp_subset@data
 
-#modelData$lfreq_tota <- subset(dta_shp$lfreq_tota, dta_shp$id)
-modelData <- merge.default(modelData, dta_shp@data[c("id", "lfreq_tota")], by = "id")
+#adds id, lfreq_tota, and pair_id variables to modelData, as well as all the posttrends
+modelData <- merge.default(modelData, dta_shp@data[c("posttrend_pmean", "posttrend_pmin", "posttrend_pmax", "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
+"posttrend_ndvimean", "posttrend_ndvimax", "posttrend_ntl", "id", "lfreq_tota")], by = "id")
 modelData$id <- modelData$id - 1
+modelData <- merge.default(modelData, df_pairs, by = "id")
 
-modelData$pair_id <- NA
-modelData$pair_id[modelData$Treat == 1] <- df_pairs$pair_id
-modelData$pair_id[modelData$Treat == 0] <- df_pairs$pair_id
 
-#linearModel <- lm(lfreq_tota ~ Treat + terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
-#                  prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
-#                  pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
-#                  pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist +
-#                  posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
-#                  posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl + factor(id),
-#                  data = modelData)
-
-linearModel <- lm(lfreq_tota ~ Treat + factor(id),
+####Start of Models####
+model_treat_only <- lm(lfreq_tota ~ Treat,
                   data = modelData)
+print(summary(model_treat_only))
+print('______________________________________________________________________________________', quote = FALSE)
 
-summary(linearModel)
 
+model_treat_FE <- lm(lfreq_tota ~ Treat + factor(pair_id),
+                     data = modelData)
+print(summary(model_treat_FE))
+print('______________________________________________________________________________________', quote = FALSE)
 
+#This model includes all of the covariates including the violence prelevels, 
+#but I think that the violence prelevels should probably be taken out since they are almost all zeros
+model_all_covars <- lm(lfreq_tota ~ Treat + terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+                  prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_ntl + prelevel_lviolence + prelevel_iviolence +
+                  Slope + Elevation + Riv_Dist + Road_dist +
+                  posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
+                  posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl + Pop_2000_y + factor(pair_id),
+                  data = modelData)
+print(summary(model_all_covars))
+print('______________________________________________________________________________________', quote = FALSE)
 
+####2 models that I added with different sets of variables####
+
+#This model drops the violence prelevels because they have almost no information (they're almost all zeros),
+#and drops the pair fixed effects because there are too many variables, giving an error: "ALL 46 residuals are 0: no residual degrees of freedom!"
+model_some_covars <- lm(lfreq_tota ~ Treat + terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+                          prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_ntl +
+                          Slope + Elevation + Riv_Dist + Road_dist +
+                          posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
+                          posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl + Pop_2000_y,
+                        data = modelData)
+print(summary(model_some_covars))
+print('______________________________________________________________________________________', quote = FALSE)
+
+#This model drops variables with low significance - The p-value for Treat is still greater than the
+#p-value for treat from model_treat_FE
+model_cherrypicked <- lm(lfreq_tota ~ Treat + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+                         prelevel_tmin + prelevel_tmax + prelevel_ndvimean +
+                         Riv_Dist +
+                         posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl + Pop_2000_y + factor(pair_id),
+                       data = modelData)
+print(summary(model_cherrypicked))
+print('______________________________________________________________________________________', quote = FALSE)
 
 
 #Views the data
