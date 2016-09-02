@@ -2,7 +2,8 @@ library(maptools)
 
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
-setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
+setwd("~/Documents/AidData/Git Repos/kfw2_amazon_conflict")
+#setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
 #setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
 
 #clear variables and values
@@ -25,7 +26,7 @@ load("Interim_Data/Individual_Violence_Overlap.Rda")
 
 #reads the population and nighttime lights data from file
 data_pop_nlights <- read.csv(file = "Raw_and_Original_Data/merge_terra_indigenaPolygon_id_thin.csv", header=TRUE, sep = ',')
-
+#dflc (dist logging center); dcfu (dist federal conservation unit); dcsu (dist state conservation unit); dfrw (dist from railways)
 
 ##EXAMPLE for counting frequency of violence - from Preliminary_Delimitation_and_Conflict_Data_Analysis.R
 ##counts frequency of each id_ad in the data (number of incidences of violence per unit)
