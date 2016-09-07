@@ -2,7 +2,8 @@
 rm(list=ls())
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
-setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
+setwd("/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict")
+#setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
 #setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
 
 #essential spatial view packages (load and project shapefiles etc...)
@@ -81,7 +82,8 @@ dta_shp$posttrend_tmax <- timeRangeTrend(dta_shp,"MaxT_[0-9][0-9][0-9][0-9]",200
 dta_shp$posttrend_ndvimean <- timeRangeTrend(dta_shp,"MeanL_[0-9][0-9][0-9][0-9]",2003,2014,"id")
 dta_shp$posttrend_ndvimax <- timeRangeTrend(dta_shp,"MaxL_[0-9][0-9][0-9][0-9]",2003,2014,"id")
 
-dta_shp$posttrend_ntl <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",2003,2014,"id")
+#no ntl data for 2014 yet, so posttrend only goes through 2013
+dta_shp$posttrend_ntl <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",2003,2013,"id")
 
 #Make Pop pretrend value
 dta_shp$pretrend_pop <- dta_shp$Pop_2000_y - dta_shp$Pop_1990
@@ -93,8 +95,8 @@ dta_shp@data$NA_check <- 0
 dta_shp@data$NA_check[is.na(dta_shp@data$demend_y)] <- 1
 dta_shp@data$DemBin[dta_shp@data$NA_check != 1] <- 1
 
-#demtable <- table(dtashp@data$DemBin)
-#View(demtable)
+# demtable <- table(dta_shp@data$DemBin)
+# View(demtable)
 
 
 #Make a binary for treated (demarcated 2004-2008)
