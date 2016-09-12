@@ -2,9 +2,9 @@ library(maptools)
 
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
-setwd("~/Documents/AidData/Git Repos/kfw2_amazon_conflict")
+#setwd("~/Documents/AidData/Git Repos/kfw2_amazon_conflict")
 #setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
-#setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
+setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
 
 #clear variables and values
 rm(list = ls())
@@ -137,6 +137,12 @@ names(data_cross_merged) <- gsub("year", "y", names(data_cross_merged))
 names(data_cross_merged) <- gsub("(.+)_extra(.+)", "ex\\1\\2", names(data_cross_merged))
 
 
+#fixes a few mistakes in variable names
+names(data_cross_merged)[names(data_cross_merged)=="ifreq11"] <- "ifreq2011"
+names(data_cross_merged)[names(data_cross_merged)=="lfreq11"] <- "lfreq2011"
+names(data_cross_merged)[names(data_cross_merged)=="ntl_11"] <- "ntl_2011"
+
+
 #Merges previous merged dataset with the shapefile dataframe
 data_cross_merged_shp <- merge(shpfile_working, data_cross_merged, by = "id")
 
@@ -151,6 +157,7 @@ df_merged_shp <- as.data.frame(data_cross_merged_shp)
 
 
 ##saves the merged shape file - NOTE: this is done now, no need to run this code again
+#data_cross_merged_shp@data[] <- lapply(data_cross_merged_shp@data, unclass)
 #writePolyShape(data_cross_merged_shp, "shpfilecross", factor2char = TRUE, max_nchar = 254)
 
 
