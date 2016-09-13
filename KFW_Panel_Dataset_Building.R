@@ -3,7 +3,9 @@ rm(list=ls())
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
 #setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
-setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
+#setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
+setwd("/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict")
+
 
 #essential spatial view packages (load and project shapefiles etc...)
 library(rgdal)
@@ -231,13 +233,14 @@ dta_shp@data <- as.data.frame(dta_shp@data)[order(names(dta_shp@data))]
 #print(grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE))
 
 #Reshapes the dataframe from wide to long
-dta_shp@data <- reshape(dta_shp@data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE), v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_", "ifreq", "lfreq", "ntl_"), times = 1982:2020)
+panel_data <- reshape(dta_shp@data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE), v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_", "ifreq", "lfreq", "ntl_"), times = 1982:2020)
 
 
 
-View(as.data.frame(dta_shp)[1:100])
-View(as.data.frame(dta_shp)[101:166])
+View(as.data.frame(panel_data)[1:100])
+View(as.data.frame(panel_data)[101:166])
 
+write.csv(panel_data,"/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict/Processed_Data/panel_data.csv")
 
 #View(as.data.frame(dta_shp)[1:100])
 #View(as.data.frame(dta_shp)[101:200])
