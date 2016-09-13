@@ -124,8 +124,8 @@ aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_p
 
 
 #cuts the dataset down to only complete cases (matchit won't work if there are NAs)
-dta_shp <- dta_shp[complete.cases(dta_shp@data[aVars]),]
-
+# dta_shp1 <- dta_shp[complete.cases(dta_shp@data[aVars]),]
+# dta_shp<-dta_shp1
 
 #matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
 #                           prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
@@ -146,7 +146,7 @@ matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin +
 
 
 #prints the matchit results
-#print(summary(matchit.results))
+print(summary(matchit.results))
 
 #makes a new dataframe with the matched pair ids, to identify each pair
 df_pairs <- as.data.frame(matchit.results$match.matrix)
@@ -190,8 +190,10 @@ print('_________________________________________________________________________
 
 #This model includes all of the covariates including the violence prelevels, 
 #but I think that the violence prelevels should probably be taken out since they are almost all zeros
-model_all_covars <- lm(lfreq_tota ~ Treat + terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
-                  prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_ntl + prelevel_lviolence + prelevel_iviolence +
+model_all_covars <- lm(lfreq_tota ~ Treat + terrai_are + 
+                        #prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
+                  #prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_ntl + prelevel_iviolence+ 
+                  prelevel_lviolence  +
                   Slope + Elevation + Riv_Dist + Road_dist +
                   posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
                   posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl + Pop_2000_y + factor(pair_id),
