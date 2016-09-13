@@ -224,7 +224,7 @@ dta_shp@data$Pop_1989 <- NA
 
 
 #Orders the dataframe columns alphabetically
-dta_shp@data <- as.data.frame(dta_shp@data)[order(names(dta_shp@data))]
+#dta_shp@data <- as.data.frame(dta_shp@data)[order(names(dta_shp@data))]
 
 #List the names of the variables in dta_shp
 #print(names(dta_shp@data))
@@ -235,10 +235,11 @@ dta_shp@data <- as.data.frame(dta_shp@data)[order(names(dta_shp@data))]
 #Reshapes the dataframe from wide to long
 panel_data <- reshape(dta_shp@data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE), v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_", "ifreq", "lfreq", "ntl_"), times = 1982:2020)
 
-
-
 View(as.data.frame(panel_data)[1:100])
 View(as.data.frame(panel_data)[101:166])
+
+#Rename variable "time" to "year"
+names(panel_data)[names(panel_data)=="time"]="year"
 
 write.csv(panel_data,"/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict/Processed_Data/panel_data.csv")
 
