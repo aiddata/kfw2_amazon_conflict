@@ -37,7 +37,6 @@ names(dta_shp@data)[names(dta_shp@data)=="ntl_11"] <- "ntl_2011"
 #fills in 0s for NAs in lfreq_tota
 dta_shp@data$lfreq_tota[is.na(dta_shp@data$lfreq_tota)] <- 0
 
-
 #Impute 2014 ntl value
 dta_shp@data$ntl_2013[is.na(dta_shp@data$ntl_2013)] <- 5555
 dta_shp@data$ntl2014trend <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",2009,2013,"id")
@@ -233,10 +232,30 @@ dta_shp@data$Pop_1989 <- NA
 #print(grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE))
 
 #Reshapes the dataframe from wide to long
-panel_data <- reshape(dta_shp@data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE), v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_", "ifreq", "lfreq", "ntl_"), times = 1982:2020)
+panel_data <- reshape(dta_shp@data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE),
+                      v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_",
+                                  "ifreq", "lfreq", "ntl_"), times = 1982:2020)
+#scratch
+panel_data1 <- reshape(data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(data), value = TRUE),
+                      v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_",
+                                  "ifreq", "lfreq", "ntl_"), idvar="id",timevar="year")
+
+data<-dta_shp@data
+
+all_reshape <- c(Pop,MeanL, MaxL, MeanT,MaxT,MinT,MeanP,MaxP,MinP,ifreq,lfreq,ntl)
+DFa4 <- reshape(data, varying=c("Pop", "MeanL", "MaxL", "MeanT", "MaxT", "MinT", "MeanP", "MaxP", "MinP",
+                              "ntl"),direction="long", idvar="id", sep="_", timevar="year")
+
+
+all_reshape <- c(PCloss, mean_ln, minairTemp, maxairTemp, meanairTemp, minPre, maxPre, meanPre, MinDist, DecayDist, ProjCount, DecayDist100)
+DFa4 <- reshape(DFa3, varying=all_reshape,direction="long", idvar="ID", sep="_", timevar="Year")
+#------
 
 View(as.data.frame(panel_data)[1:100])
 View(as.data.frame(panel_data)[101:166])
+
+panel_data2<-panel_data[panel_data$time>=2003,]
+panel_data2<-panel_data2[panel_data2$time<=2014,]
 
 #Rename variable "time" to "year"
 names(panel_data)[names(panel_data)=="time"]="year"
