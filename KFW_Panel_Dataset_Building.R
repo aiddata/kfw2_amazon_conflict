@@ -29,13 +29,9 @@ dta_shp = readShapePoly(shp_file)
 dta_shp@data$Pop_2000_x <- NULL
 names(dta_shp@data)[names(dta_shp@data)=="Pop_2000_y"] <- "Pop_2000"
 
-#fixes a few mistakes in variable names (if they're not already fixed)
-names(dta_shp@data)[names(dta_shp@data)=="ifreq11"] <- "ifreq2011"
-names(dta_shp@data)[names(dta_shp@data)=="lfreq11"] <- "lfreq2011"
-names(dta_shp@data)[names(dta_shp@data)=="ntl_11"] <- "ntl_2011"
-
-#fills in 0s for NAs in lfreq_tota
+#fills in 0s for NAs in lfreq_tota and ifreq_tota
 dta_shp@data$lfreq_tota[is.na(dta_shp@data$lfreq_tota)] <- 0
+dta_shp@data$ifreq_tota[is.na(dta_shp@data$ifreq_tota)]<-0
 
 #Impute 2014 ntl value
 dta_shp@data$ntl_2013[is.na(dta_shp@data$ntl_2013)] <- 5555
@@ -97,7 +93,9 @@ for (i in 2:length(df))
 #shows what variables are taken by reshape in varying
 print(grep("(.+)[0-9][0-9][0-9][0-9]$", names(df), value = TRUE))
 
+#-----------------------------------
 #Reshapes the dataframe from wide to long
+#-----------------------------------
 
 # panel_data <- reshape(dta_shp@data, dir = "long", varying = grep("(.+)[0-9][0-9][0-9][0-9]$", names(dta_shp), value = TRUE),
 #                       v.names = c("Pop_", "MeanL_", "MaxL_", "MeanT_", "MaxT_", "MinT_", "MeanP_", "MaxP_", "MinP_",
@@ -111,7 +109,14 @@ View(as.data.frame(panel_data)[101:147])
 #Rename variable "time" to "year"
 names(panel_data)[names(panel_data)=="time"]="year"
 
+#Replace NAs in ifreq and lfreq with 0
+panel_data$ifreq[is.na(panel_data$ifreq)]<-0
+panel_data$lfreq[is.na(panel_data$lfreq)]<-0
+
+#Save panel data
 write.csv(panel_data,"/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict/Processed_Data/panel_data.csv")
+
+
 
 #View(as.data.frame(dta_shp)[1:100])
 #View(as.data.frame(dta_shp)[101:200])
