@@ -2,7 +2,7 @@
 #--------------------------------
 #Panel Model
 #Outcome:Yearly Count of Land Conflict, 2003-2014
-#Trtmnt: All mappable lands demarcated between 2004 and 2014
+#Trtmnt: PPTAL lands ever demarcated 
 #--------------------------------
 
 #clear variables and values
@@ -36,21 +36,18 @@ panel_data<-read.csv("Processed_Data/panel_data.csv")
 #Formatting Panel Dataset
 #---------------
 
-#subset to all lands demarcated between 2004 and 2014, according to FUNAI 2016 list
-panel_data_sub<-panel_data[!is.na(panel_data$dem_y16),]
-panel_data_sub<-panel_data_sub[panel_data_sub$dem_y16>=2004,]
-panel_data_sub<-panel_data_sub[panel_data_sub$dem_y16<=2014,]
-#there should be 85 lands for each year using check below
+#subset to PPTAL lands ever demarcated 
+panel_data_sub<-panel_data[!is.na(panel_data$demend_y),]
+#there should be 106 lands for each year using check below
 #table(panel_data_sub$year)
 
 panel_data<-panel_data_sub
 
-#Create treatment binary that turns from 0 to 1 in year of demarcation
+#Create treatment variable that measures years prior to or after demarcation
 panel_data$trt_dem<-NA
-panel_data$trt_dem[panel_data$year>=panel_data$dem_y16]<-1
-panel_data$trt_dem[panel_data$year<panel_data$dem_y16]<-0
+panel_data$trt_dem<-panel_data$year-panel_data$demend_y
 
-#test treatment binary
+#test treatment var
 panel_data_sort<-panel_data[order(panel_data$id),]
 View(as.data.frame(panel_data_sort)[,100:149])
 
@@ -76,7 +73,7 @@ Model3<- lm(lfreq ~ trt_dem +
               MaxL + Pop + 
               MeanT + MaxT + MinT +
               MeanP + MaxP + MinP +
-              ifreq + ntl +
+              ifreq + ntl+
               year + factor(id),
             data=panel_data)
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
@@ -101,11 +98,9 @@ CMREG4 <- coeftest(Model4, cluster4)
 stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
           type="html", align=TRUE,
           omit.stat=c("f","ser"),
-          add.lines=list(c("Observations","1020","1020","1020","1020"),
+          add.lines=list(c("Observations","1272","1272","1272","1272"),
                          c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
                          c("Year Fixed Effects?","No","No","No","Yes")),
-          title="Full Sample Regression Results: Dem 2004-2014",
+          title="PPTAL Regression Results: Demarcation Any Year",
           dep.var.labels=c("Land Conflict"))
-
-
 
