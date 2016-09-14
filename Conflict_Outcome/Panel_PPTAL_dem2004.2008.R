@@ -27,6 +27,7 @@ library(MatchIt)
 library(SCI)
 library(multiwayvcov)
 library(lmtest)
+library(stargazer)
 
 #load in full panel dataset from processed data folder
 panel_data<-read.csv("Processed_Data/panel_data.csv")
@@ -41,12 +42,7 @@ panel_data_sub<-panel_data_sub[panel_data_sub$demend_y>=2004,]
 #there should be 23 lands for each year using check below
 #table(panel_data_sub$year)
 
-#Remove years of panel dataset outside of 2003-2014(years when record of land conflict outcome exists)
-panel_data_sub1<-panel_data[panel_data$year>=2003,]
-panel_data_sub1<-panel_data_sub1[panel_data_sub1$year<=2014,]
-#table(panel_data_sub1$year)
-
-panel_data<-panel_data_sub1
+panel_data<-panel_data_sub
 
 #Create treatment binary that turns from 0 to 1 in year of demarcation
 panel_data$trt_dem<-NA
@@ -54,8 +50,8 @@ panel_data$trt_dem[panel_data$year>=panel_data$demend_y]<-1
 panel_data$trt_dem[panel_data$year<panel_data$demend_y]<-0
 
 #test treatment binary
-#panel_data_sort<-panel_data[order(panel_data$id),]
-View(as.data.frame(panel_data_sort)[,100:168])
+panel_data_sort<-panel_data[order(panel_data$id),]
+View(as.data.frame(panel_data_sort)[,100:149])
 
 #---------------------
 #Models
@@ -66,32 +62,47 @@ cluster1 <- cluster.vcov(Model1, cbind(panel_data$year, panel_data$reu_id), forc
 CMREG1 <- coeftest(Model1, cluster1)
 
 Model2<- lm(lfreq ~ trt_dem + 
-              MaxL_ + Pop_ + 
-              MeanT_ + MaxT_ + MinT_ +
-              MeanP_ + MaxP_ + MinP_ +
-              ifreq + ntl_ +
+              MaxL + Pop + 
+              MeanT + MaxT + MinT +
+              MeanP + MaxP + MinP +
+              ifreq + ntl +
               factor(reu_id),
               data=panel_data)
 cluster2 <- cluster.vcov(Model2, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
 CMREG2 <- coeftest(Model2, cluster2)
 
 Model3<- lm(lfreq ~ trt_dem + 
-              MaxL_ + Pop_ + 
-              MeanT_ + MaxT_ + MinT_ +
-              MeanP_ + MaxP_ + MinP_ +
-              ifreq + ntl_ +
+              MaxL + Pop + 
+              MeanT + MaxT + MinT +
+              MeanP + MaxP + MinP +
+              ifreq + ntl +
               year + factor(reu_id),
             data=panel_data)
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
 CMREG3 <- coeftest(Model3, cluster3)
 
 Model4<- lm(lfreq ~ trt_dem + 
-              MaxL_ + Pop_ + 
-              MeanT_ + MaxT_ + MinT_ +
-              MeanP_ + MaxP_ + MinP_ +
-              ifreq + ntl_ +
+              MaxL + Pop + 
+              MeanT + MaxT + MinT +
+              MeanP + MaxP + MinP +
+              ifreq + ntl +
               factor(year) + factor(reu_id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
 CMREG4 <- coeftest(Model4, cluster4)
+
+
+
+#-------------------
+#Stargazer
+#------------------
+
+stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
+          type="html", align=TRUE,
+          omit.stat=c("f","ser"),
+          add.lines=list(c("Observations","276","276","276","276"),
+                        c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
+                        c("Year Fixed Effects?","No","No","No","Yes")),
+          title="PPTAL Regression Results: Dem 2004-2008",
+          dep.var.labels=c("Land Conflict"))
 
