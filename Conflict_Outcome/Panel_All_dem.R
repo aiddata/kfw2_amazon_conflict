@@ -45,7 +45,7 @@ panel_data<-panel_data_sub
 
 #Create treatment var that measures years prior to or after demarcation
 panel_data$trt_dem<-NA
-panel_data$trt_dem<-panel_data$year-panel_data$dem_y16
+panel_data$trt_dem<-panel_data$year-panel_data$appr_y16
 
 #test treatment binary
 panel_data_sort<-panel_data[order(panel_data$id),]
@@ -80,11 +80,8 @@ cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$id), force_po
 CMREG3 <- coeftest(Model3, cluster3)
 
 Model4<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
-              factor(year) + factor(id),
+              Pop + ntl +
+              year + factor(id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG4 <- coeftest(Model4, cluster4)
@@ -96,11 +93,12 @@ CMREG4 <- coeftest(Model4, cluster4)
 
 stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
           type="html", align=TRUE,
+          omit=c("factor"), omit.label=c("factor"),
           omit.stat=c("f","ser"),
-          add.lines=list(c("Observations","1020","1020","1020","1020"),
+          add.lines=list(c("Observations","3708","3708","3708","3708"),
                          c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
                          c("Year Fixed Effects?","No","No","No","Yes")),
-          title="Full Sample Regression Results: Dem 2004-2014",
+          title="Full Sample Regression Results: Ever Demarcated",
           dep.var.labels=c("Land Conflict"))
 
 

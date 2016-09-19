@@ -50,6 +50,10 @@ panel_data$trt_dem<-NA
 panel_data$trt_dem[panel_data$year>=panel_data$dem_y16]<-1
 panel_data$trt_dem[panel_data$year<panel_data$dem_y16]<-0
 
+panel_data$lfreq_bin<-NA
+panel_data$lfreq_bin[panel_data$lfreq>0]<-1
+panel_data$lfreq_bin[panel_data$lfreq==0]<-0
+
 #test treatment binary
 panel_data_sort<-panel_data[order(panel_data$id),]
 View(as.data.frame(panel_data_sort)[,100:149])
@@ -82,12 +86,10 @@ Model3<- lm(lfreq ~ trt_dem +
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG3 <- coeftest(Model3, cluster3)
 
-Model4<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
-              factor(year) + factor(id),
+Model4<- lm(lfreq_bin ~ trt_dem + 
+              Pop + 
+              ntl +
+              year + factor(id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG4 <- coeftest(Model4, cluster4)
