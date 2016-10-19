@@ -155,13 +155,6 @@ dta_shp@data$Treat[dta_shp@data$NA_list == 0] <- 1
 dta_shp@data <- subset(dta_shp@data, Treat == 1 | DemBin == 0)
 
 
-#aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
-#  "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_iviolence", "prelevel_lviolence", 
-#  "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax", 
-#  "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "pretrend_pop", "Slope", "Elevation", "Riv_Dist", "Road_dist",
-#  "posttrend_pmean", "posttrend_pmin", "posttrend_pmax", "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
-#  "posttrend_ndvimean", "posttrend_ndvimax", "posttrend_ntl", "id")
-
 aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
            "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", #"prelevel_ntl",
            "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax",
@@ -172,14 +165,6 @@ aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_p
 dta_shp1 <- dta_shp[complete.cases(dta_shp@data[aVars]),]
 dta_shp<-dta_shp1
 
-#matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
-#                           prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + prelevel_iviolence + prelevel_lviolence + 
-#                           pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
-#                           pretrend_ndvimean + pretrend_ndvimax + pretrend_ntl + pretrend_pop + Slope + Elevation + Riv_Dist + Road_dist +
-#                           posttrend_pmean + posttrend_pmin + posttrend_pmax + posttrend_tmean + posttrend_tmin + posttrend_tmax + 
-#                           posttrend_ndvimean + posttrend_ndvimax + posttrend_ntl,
-#                           data = dta_shp@data[aVars],
-#                           method = "nearest", distance="logit")
 
 ####MatchIt####
 matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
@@ -244,8 +229,7 @@ model_prelevel <- lm(diff_ndvimax ~ Treat + terrai_are +
 print(summary(model_prelevel))
 print('______________________________________________________________________________________', quote = FALSE)
 
-#This model includes all of the covariates including the violence prelevels, 
-#but I think that the violence prelevels should probably be taken out since they are almost all zeros
+
 model_all_covars <- lm(diff_ndvimax ~ Treat + terrai_are + 
                          prelevel_pmean + prelevel_pmin + prelevel_pmax + prelevel_tmean +
                          prelevel_tmin + prelevel_tmax + prelevel_ndvimean + prelevel_ndvimax + #prelevel_ntl +

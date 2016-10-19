@@ -1,8 +1,8 @@
 
 #--------------------------------
 #Panel Model
-#Outcome:Yearly Count of Land Conflict, 2003-2014
-#Trtmnt: All mappable lands ever demarcated
+#Outcome:Yearly Deforestation Measure, 2003-2014
+#Trtmnt: PPTAL Lands Ever Demarcated
 #--------------------------------
 
 #clear variables and values
@@ -10,8 +10,8 @@ rm(list=ls())
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
 #setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
-#setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
-setwd("/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict")
+setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
+#setwd("/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict")
 
 #essential spatial view packages (load and project shapefiles etc...)
 library(rgdal)
@@ -36,9 +36,9 @@ panel_data<-read.csv("Processed_Data/panel_data.csv")
 #Formatting Panel Dataset
 #---------------
 
-#subset to all lands ever demarcated according to FUNAI 2016 list
-panel_data_sub<-panel_data[!is.na(panel_data$dem_y16),]
-#there should be 309 lands for each year using check below
+#subset to PPTAL lands ever demarcated 
+panel_data_sub<-panel_data[!is.na(panel_data$demend_y),]
+#there should be 106 lands for each year using check below
 #table(panel_data_sub$year)
 
 panel_data<-panel_data_sub
@@ -55,12 +55,13 @@ View(as.data.frame(panel_data_sort)[,100:149])
 #Models
 #---------------------
 
-Model1<- lm(lfreq ~ trt_dem + factor(id), data=panel_data)
+Model1<- lm(MaxL ~ trt_dem + factor(id), data=panel_data)
 cluster1 <- cluster.vcov(Model1, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG1 <- coeftest(Model1, cluster1)
+print(summary(Model1))
 
-Model2<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
+Model2<- lm(MaxL ~ trt_dem + 
+              lfreq + Pop + 
               MeanT + MaxT + MinT +
               MeanP + MaxP + MinP +
               ifreq + ntl +
@@ -68,9 +69,10 @@ Model2<- lm(lfreq ~ trt_dem +
             data=panel_data)
 cluster2 <- cluster.vcov(Model2, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG2 <- coeftest(Model2, cluster2)
+print(summary(Model2))
 
-Model3<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
+Model3<- lm(MaxL ~ trt_dem + 
+              lfreq + Pop + 
               MeanT + MaxT + MinT +
               MeanP + MaxP + MinP +
               ifreq + ntl +
@@ -78,13 +80,15 @@ Model3<- lm(lfreq ~ trt_dem +
             data=panel_data)
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG3 <- coeftest(Model3, cluster3)
+print(summary(Model3))
 
-Model4<- lm(lfreq ~ trt_dem + 
+Model4<- lm(MaxL ~ trt_dem + 
               Pop + ntl +
               year + factor(id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG4 <- coeftest(Model4, cluster4)
+print(summary(Model4))
 
 
 #-------------------
