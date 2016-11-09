@@ -36,7 +36,7 @@ dta_shp = readShapePoly(shp_file)
 #View(as.data.frame(dta_shp@data[101:200]))
 #View(as.data.frame(dta_shp@data[201:300]))
 #View(as.data.frame(dta_shp@data[301:400]))
-#View(as.data.frame(dta_shp@data[401:470]))
+#View(as.data.frame(dta_shp@data[401:473]))
 
 #print(colnames(dta_shp@data))
 
@@ -111,7 +111,7 @@ dta_shp$posttrend_tmax <- timeRangeTrend(dta_shp,"MaxT_[0-9][0-9][0-9][0-9]",198
 dta_shp$posttrend_ndvimean <- timeRangeTrend(dta_shp,"MeanL_[0-9][0-9][0-9][0-9]",1988,2014,"id")
 dta_shp$posttrend_ndvimax <- timeRangeTrend(dta_shp,"MaxL_[0-9][0-9][0-9][0-9]",1988,2014,"id")
 
-dta_shp$posttrend_pop<-timeRangeTrend(dta_shp,"Pop_[0-9][0-9][0-9][0-9]","1990","2010","id")
+dta_shp$posttrend_pop<-timeRangeTrend(dta_shp,"Pop_[0-9][0-9][0-9][0-9]",1990,2010,"id")
 
 #no ntl data for 2014 yet, so posttrend only goes through 2013
 #drop 4 obs with no ntl data, which also have no demarcation data so would be dropped out anyway
@@ -143,6 +143,13 @@ dta_shp@data$Treat[(dta_shp@data$DemBin==1)&(dta_shp@data$dem_y16>1987)]<-1
 #Eliminate lands that were demarcated in years before 1988, so dataset only includes never demarcated and demarcated 1988 or later
 dta_shp<- subset(dta_shp, Treat == 1 | DemBin == 0)
 
+#eliminate lands where measurement of land area equals 0 (doesn't make sense when matching on area below)
+dta_shp<-dta_shp[dta_shp$area_587>0,]
+
+#--------------
+####MatchIt####
+#--------------
+
 aVars <- c("Treat", "area_587","prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
            "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax",
            "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax",
@@ -153,10 +160,6 @@ aVars <- c("Treat", "area_587","prelevel_pmean", "prelevel_pmin", "prelevel_pmax
 #this step should not eliminate any cases
 dta_shp1 <- dta_shp[complete.cases(dta_shp@data[aVars]),]
 dta_shp<-dta_shp1
-
-#--------------
-####MatchIt####
-#--------------
 
 ## WITHOUT REPLACEMENT
 
@@ -193,7 +196,7 @@ dta_shp_subset@data <- dta_shp_subset@data[dta_shp_subset$id_present == TRUE,]
 
 #adds id, lfreq_tota, and pair_id variables to modelData, as well as all the posttrends
 modelData <- merge.default(modelData, dta_shp_subset@data[c("posttrend_pmean", "posttrend_pmin", "posttrend_pmax", "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
-                                                     "posttrend_ntl", "id", "lfreq_tota", "ifreq_tota", "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
+                                                     "posttrend_ntl","posttrend_pop", "id", "lfreq_tota", "ifreq_tota", "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
 modelData <- merge.default(modelData, df_pairs, by = "id")
 
 ## WITH REPLACEMENT
@@ -223,26 +226,28 @@ modelData_rep <- merge.default(modelData_rep, dta_shp_subset_rep@data[c("posttre
                                                                         "posttrend_lviolence", "posttrend_iviolence", 
                                                                         "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
 
+#create variable to use for weighting in models (1/pscore * weight)
+modelData_rep$psmweight<-(1/modelData_rep$distance)*(modelData_rep$weights)
 
 #---------------------
 ####Start of Models####
 #---------------------
 
 ## WITHOUT REPLACEMENT
-model_treat_only <- lm(diff_ndvimax ~ Treat,
+model1 <- lm(diff_ndvimax ~ Treat,
                        data = modelData)
-print(summary(model_treat_only))
+print(summary(model1))
 print('______________________________________________________________________________________', quote = FALSE)
 
 
-model_treat_FE <- lm(diff_ndvimax ~ Treat + factor(pair_id),
+model1.1 <- lm(diff_ndvimax ~ Treat + factor(pair_id),
                      data = modelData)
-print(summary(model_treat_FE))
+print(summary(model1.1))
 print('______________________________________________________________________________________', quote = FALSE)
 
-model2<-lm(diff_ndvimax ~ Treat + area_587 +
+model2<-lm(diff_ndvimax ~ Treat +
              prelevel_ndvimax + pretrend_ndvimax+
-             Pop_1990 + prelevel_tmean + prelevel_pmean +
+             area_587 + Pop_1990 + prelevel_tmean + prelevel_pmean +
              posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
              Slope +Elevation + Riv_Dist + Road_dist+
              factor(pair_id), 
@@ -250,11 +255,11 @@ model2<-lm(diff_ndvimax ~ Treat + area_587 +
 print(summary(model2))
 
 
-model3<-lm(diff_ndvimax ~ Treat + area_587+
-             prelevel_ndvimax + pretrend_ndvimax+
-             Pop_1990 + prelevel_tmean + prelevel_pmean +
-             posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
+model3<-lm(diff_ndvimax ~ Treat +
              lfreq_tota + ifreq_tota+
+             prelevel_ndvimax + pretrend_ndvimax+
+             area_587 + Pop_1990 + prelevel_tmean + prelevel_pmean +
+             posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
              Slope +Elevation + Riv_Dist + Road_dist+
              factor(pair_id), data=modelData)
 print(summary(model3))
@@ -268,39 +273,43 @@ print('_________________________________________________________________________
 
 
 model1.1R <- lm(diff_ndvimax ~ Treat,
-                data = modelData_rep, weights=(distance))
+                data = modelData_rep, weights=(psmweight))
 print(summary(model1.1R))
 print('______________________________________________________________________________________', quote = FALSE)
 
-model2R<-lm(diff_ndvimax ~ Treat + area_587 +
+model2R<-lm(diff_ndvimax ~ Treat +
              prelevel_ndvimax + pretrend_ndvimax+
-             Pop_1990 + prelevel_tmean + prelevel_pmean +
+             area_587 + Pop_1990 + prelevel_tmean + prelevel_pmean +
              posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
              Slope +Elevation + Riv_Dist + Road_dist, 
-           data=modelData_rep, weights=(distance))
+           data=modelData_rep, weights=(psmweight))
 print(summary(model2R))
 
 
-model3<-lm(diff_ndvimax ~ Treat + area_587+
+model3R<-lm(diff_ndvimax ~ Treat +
+              lfreq_tota + ifreq_tota+
              prelevel_ndvimax + pretrend_ndvimax+
-             Pop_1990 + prelevel_tmean + prelevel_pmean +
+             area_587+Pop_1990 + prelevel_tmean + prelevel_pmean +
              posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
-             lfreq_tota + ifreq_tota+
              Slope +Elevation + Riv_Dist + Road_dist,
-           data=modelData_rep, weights=(distance))
-print(summary(model3))
+           data=modelData_rep, weights=(psmweight))
+print(summary(model3R))
 
 
+#------------------
+#Stargazer
+#-----------------
 
+stargazer(model1.1,model2, model3, model1.1R,model2R,model3R,
+          omit=c("factor"),
+          covariate.labels=c("Demarcation","Land Violence Count","Individual Violence Count",
+                              "Baseline NDVI", "Pre-Trend NDVI", "Area (hectares)","Baseline Population Density",
+                              "Baseline Temperature", "Baseline Precipitation","Temperature Trends", "Precipitation Trends",
+                              "Nighttime Lights Trends","Population Trends", 
+                              "Slope", "Elevation", "Distance to River", "Distance to Road"),
+          dep.var.labels=c("Change in Max NDVI 1995-2014"),
+          title="Regression Results", type="html", omit.stat=c("f","ser"), align=TRUE)
 
-
-#Views the data
-#View(as.data.frame(dta_shp)[1:100])
-#View(as.data.frame(dta_shp)[101:200])
-#View(as.data.frame(dta_shp)[201:300])
-#View(as.data.frame(dta_shp)[301:400])
-#View(as.data.frame(dta_shp)[401:500])
-#View(as.data.frame(dta_shp)[501:504])
 
 
 
@@ -318,3 +327,12 @@ dta_shp2 <- merge(dta_shp, src_Shp1, by="id")
 dta_shp<-dta_shp2
 writePolyShape(dta_shp2,"/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict/Processed_Data/shpfilecross.shp")
 
+
+dta_shp_reu<-dta_shp[!is.na(dta_shp$reu_id),]
+summary(dta_shp_reu$terrai_are)
+summary(dta_shp_reu$area_587)
+
+dta_shp_dem<-dta_shp[!is.na(dta_shp$demend_y),]
+
+#subset where drop anything where area=0
+dta_shp_area<-dta_shp[dta_shp$area_587>0,]
