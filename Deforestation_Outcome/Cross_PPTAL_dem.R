@@ -143,6 +143,8 @@ dta_shp@data$Treat[dta_shp@data$NA_check != 1] <- 1
 
 table(dta_shp@data$Treat)
 
+#eliminates cases where area is equal to 0 (inaccurate and doesn't make sense if matching on this attribute)
+dta_shp<-dta_shp[dta_shp$terrai_are>0,]
 
 #Identify set of variables used for 1st stage matching equation
 aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
@@ -242,6 +244,8 @@ modelData_rep <- merge.default(modelData_rep, dta_shp_subset_rep@data[c("posttre
                                                             "posttrend_lviolence", "posttrend_iviolence", 
                                                             "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
 
+#create variable to use for weighting in models (1/pscore * weight)
+modelData_rep$psmweight<-(1/modelData_rep$distance)*(modelData_rep$weights)
 
 #-----------------------
 ####Start of Models####
