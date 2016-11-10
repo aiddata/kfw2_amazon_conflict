@@ -61,31 +61,25 @@ Model1<- lm(lfreq ~ trt_dem + factor(reu_id), data=panel_data)
 cluster1 <- cluster.vcov(Model1, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
 CMREG1 <- coeftest(Model1, cluster1)
 
-Model2<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
+Model2<- lm(lfreq ~ trt_dem + ifreq+
+              Pop + 
+              ntl +
               factor(reu_id),
               data=panel_data)
 cluster2 <- cluster.vcov(Model2, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
 CMREG2 <- coeftest(Model2, cluster2)
 
-Model3<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
+Model3<- lm(lfreq ~ trt_dem + ifreq +
+              Pop + 
+              ntl +
               year + factor(reu_id),
             data=panel_data)
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
 CMREG3 <- coeftest(Model3, cluster3)
 
-Model4<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
+Model4<- lm(lfreq ~ trt_dem + ifreq+
+              Pop + 
+              ntl +
               factor(year) + factor(reu_id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$reu_id), force_posdef=TRUE)
@@ -99,7 +93,10 @@ CMREG4 <- coeftest(Model4, cluster4)
 
 stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
           type="html", align=TRUE,
+          omit=c("factor"),
           omit.stat=c("f","ser"),
+          covariate.labels=c("Demarcation","Individual Violence",
+                             "Population","Nighttime Lights","Year"),
           add.lines=list(c("Observations","276","276","276","276"),
                         c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
                         c("Year Fixed Effects?","No","No","No","Yes")),
