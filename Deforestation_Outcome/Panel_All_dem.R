@@ -61,10 +61,11 @@ CMREG1 <- coeftest(Model1, cluster1)
 CMREG1
 
 Model2<- lm(MaxL ~ trt_dem + 
-              lfreq + Pop + 
+              lfreq + ifreq+
+              Pop + 
               MeanT + MaxT + MinT +
               MeanP + MaxP + MinP +
-              ifreq + ntl +
+              ntl +
               factor(id),
             data=panel_data)
 cluster2 <- cluster.vcov(Model2, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
@@ -72,10 +73,11 @@ CMREG2 <- coeftest(Model2, cluster2)
 CMREG2
 
 Model3<- lm(MaxL ~ trt_dem + 
-              lfreq + Pop + 
+              lfreq + ifreq+
+              Pop + 
               MeanT + MaxT + MinT +
               MeanP + MaxP + MinP +
-              ifreq + ntl +
+              ntl +
               year + factor(id),
             data=panel_data)
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
@@ -83,10 +85,11 @@ CMREG3 <- coeftest(Model3, cluster3)
 CMREG3
 
 Model4<- lm(MaxL ~ trt_dem + 
-              lfreq + Pop + 
+              lfreq + ifreq+
+              Pop + 
               MeanT + MaxT + MinT +
               MeanP + MaxP + MinP +
-              ifreq + ntl +
+              ntl +
               factor(year) + factor(id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
@@ -102,6 +105,10 @@ stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
           type="html", align=TRUE,
           omit=c("factor"),
           omit.stat=c("f","ser"),
+          covariate.labels=c("Demarcation","Land Violence","Individual Violence",
+                             "Population","Mean Temperature","Max Temperature","Min Temperature",
+                             "Mean Precipitation","Max Precipitation","Min Precipitation",
+                             "Nighttime Lights","Year"),
           add.lines=list(c("Observations","3708","3708","3708","3708"),
                          c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
                          c("Year Fixed Effects?","No","No","No","Yes")),
