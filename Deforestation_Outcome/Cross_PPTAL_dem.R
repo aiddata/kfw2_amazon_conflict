@@ -122,6 +122,8 @@ dta_shp$posttrend_tmax <- timeRangeTrend(dta_shp,"MaxT_[0-9][0-9][0-9][0-9]",199
 dta_shp$posttrend_ndvimean <- timeRangeTrend(dta_shp,"MeanL_[0-9][0-9][0-9][0-9]",1995,2014,"id")
 dta_shp$posttrend_ndvimax <- timeRangeTrend(dta_shp,"MaxL_[0-9][0-9][0-9][0-9]",1995,2014,"id")
 
+dta_shp$posttrend_pop<-timeRangeTrend(dta_shp,"Pop_[0-9][0-9][0-9][0-9]",2000,2010,"id")
+
 #no ntl data for 2014 yet, so posttrend only goes through 2013
 dta_shp$posttrend_ntl <- timeRangeTrend(dta_shp,"ntl_[0-9][0-9][0-9][0-9]",1995,2013,"id")
 
@@ -140,14 +142,26 @@ dta_shp@data["Treat"] <- 0
 dta_shp@data$NA_check <- 0
 dta_shp@data$NA_check[is.na(dta_shp@data$demend_y)] <- 1
 dta_shp@data$Treat[dta_shp@data$NA_check != 1] <- 1
-
 table(dta_shp@data$Treat)
+
+#Make a binary for ever demarcated(Treat_16=1) vs. never demarcated from dem_y16 (instead of PPTAL data)
+dta_shp@data$Treat_16 <- 0
+dta_shp@data$Treat_16[!is.na(dta_shp$dem_y16)]<-1
+
+#Make a binary for ever demarcated through PPTAL(Treat_PPTAL=1) vs. never demarcated ever from dem_y16 (Treat_PPTAL=0)
+dta_shp_ever<-subset(dta_shp,Treat==1 | Treat_16==0)
+dta_shp_ever$Treat_PPTAL<-0
+dta_shp_ever$Treat_PPTAL[dta_shp_ever$Treat==1]<-1
 
 #eliminates cases where area is equal to 0 (inaccurate and doesn't make sense if matching on this attribute)
 dta_shp<-dta_shp[dta_shp$terrai_are>0,]
 
+#---------------
+####MatchIt####
+#---------------
+
 #Identify set of variables used for 1st stage matching equation
-aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
+aVars <- c("Treat","Treat_16", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
            "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_ntl",
            "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax",
            "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "Pop_1995", "Slope", "Elevation", "Riv_Dist", 
@@ -158,9 +172,6 @@ aVars <- c("Treat", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_p
 #dta_shp1 <- dta_shp[complete.cases(dta_shp@data[aVars]),]
 #dta_shp<-dta_shp1
 
-#---------------
-####MatchIt####
-#---------------
 
 ## WITHOUT REPLACEMENT ##
 matchit.results <- matchit(Treat ~ terrai_are + prelevel_pmean  + prelevel_tmean +
@@ -208,7 +219,7 @@ dta_shp_subset@data <- dta_shp_subset@data[dta_shp_subset$id_present == TRUE,]
 #adds id, lfreq_tota, and pair_id variables to modelData, as well as all the posttrends
 modelData_norep <- merge.default(modelData_norep, dta_shp_subset@data[c("posttrend_pmean", "posttrend_pmin", "posttrend_pmax", 
                                                      "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
-                                                     "posttrend_ntl", "id", "lfreq_tota", "ifreq_tota", 
+                                                     "posttrend_ntl","posttrend_pop", "id", "lfreq_tota", "ifreq_tota", 
                                                      "posttrend_lviolence", "posttrend_iviolence", 
                                                      "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
 modelData_norep <- merge.default(modelData_norep, df_pairs, by = "id")
@@ -240,7 +251,7 @@ dta_shp_subset_rep@data <- dta_shp_subset_rep@data[dta_shp_subset_rep$id_present
 #adds id, lfreq_tota, and pair_id variables to modelData, as well as all the posttrends
 modelData_rep <- merge.default(modelData_rep, dta_shp_subset_rep@data[c("posttrend_pmean", "posttrend_pmin", "posttrend_pmax", 
                                                             "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
-                                                            "posttrend_ntl", "id", "lfreq_tota", "ifreq_tota", 
+                                                            "posttrend_ntl","posttrend_pop", "id", "lfreq_tota", "ifreq_tota", 
                                                             "posttrend_lviolence", "posttrend_iviolence", 
                                                             "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
 
@@ -265,22 +276,22 @@ print(summary(model1.1))
 print('______________________________________________________________________________________', quote = FALSE)
 
 
-model2<-lm(diff_ndvimax ~ Treat + terrai_are +
+model2<-lm(diff_ndvimax ~ Treat +
            prelevel_ndvimax + pretrend_ndvimax+
              Pop_1995 + prelevel_tmean + prelevel_pmean + prelevel_ntl+
-             posttrend_tmean + posttrend_pmean+posttrend_ntl+
-             Slope +Elevation + Riv_Dist + Road_dist+
+             posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
+             terrai_are +Slope +Elevation + Riv_Dist + Road_dist+
              factor(pair_id), 
            data=modelData_norep)
 print(summary(model2))
 
 
-model3<-lm(diff_ndvimax ~ Treat + terrai_are+
+model3<-lm(diff_ndvimax ~ Treat+
+           lfreq_tota + ifreq_tota+
            prelevel_ndvimax + pretrend_ndvimax+
            Pop_1995 + prelevel_tmean + prelevel_pmean + prelevel_ntl+
-           posttrend_tmean + posttrend_pmean+posttrend_ntl+
-           lfreq_tota + ifreq_tota+
-           Slope +Elevation + Riv_Dist + Road_dist+
+           posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
+           terrai_are+Slope +Elevation + Riv_Dist + Road_dist+
            factor(pair_id), data=modelData_norep)
 print(summary(model3))
 
@@ -298,22 +309,22 @@ print(summary(model1.1R))
 print('______________________________________________________________________________________', quote = FALSE)
 
 
-model2R<-lm(diff_ndvimax ~ Treat + terrai_are +
+model2R<-lm(diff_ndvimax ~ Treat +  +
              prelevel_ndvimax + pretrend_ndvimax+
              Pop_1995 + prelevel_tmean + prelevel_pmean + prelevel_ntl+
-             posttrend_tmean + posttrend_pmean+posttrend_ntl+
-             Slope +Elevation + Riv_Dist + Road_dist, 
+             posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
+              terrai_are+Slope +Elevation + Riv_Dist + Road_dist, 
            data=modelData_rep, weights=(distance))
 print(summary(model2R))
 
 
-model3R<-lm(diff_ndvimax ~ Treat + terrai_are+
+model3R<-lm(diff_ndvimax ~ Treat + 
+              lfreq_tota + ifreq_tota+
              prelevel_ndvimax + pretrend_ndvimax+
              Pop_1995 + prelevel_tmean + prelevel_pmean + prelevel_ntl+
-             posttrend_tmean + posttrend_pmean+posttrend_ntl+
-             lfreq_tota + ifreq_tota+
-             Slope +Elevation + Riv_Dist + Road_dist, 
-            data=modelData_rep, weights=(distance))
+             posttrend_tmean + posttrend_pmean+posttrend_ntl+posttrend_pop+
+              terrai_are+Slope +Elevation + Riv_Dist + Road_dist, 
+            data=modelData_rep, weights=(psmweight))
 print(summary(model3R))
             
            
@@ -323,14 +334,53 @@ print(summary(model3R))
 
 stargazer(model1.1,model2, model3, model1.1R,model2R,model3R,
           omit=c("factor"),
-#           keep=c("Treat","terrai_are","Pop_1990","MeanT_1995","post_trend_temp","MeanP_1995",
-#                  "post_trend_precip","Slope","Elevation","Riv_Dist","Road_dist"),
-#           covariate.labels=c("Treatment", "Pre-Trend NDVI", "Baseline NDVI", "Area (hectares)","Baseline Population Density",
-#                              "Baseline Temperature", "Temperature Trends", "Precipitation Trends","Baseline Precipitation", 
-#                              "Slope", "Elevation", "Distance to River", "Distance to Road"),
+          covariate.labels=c("Demarcation","Land Violence Count","Individual Violence Count",
+                             "Baseline NDVI", "Pre-Trend NDVI","Baseline Population Density",
+                             "Baseline Temperature", "Baseline Precipitation","Baseline Nighttime Lights",
+                             "Temperature Trends", "Precipitation Trends",
+                             "Nighttime Lights Trends","Population Trends", 
+                             "Area (hectares)","Slope", "Elevation", "Distance to River", "Distance to Road"),
           dep.var.labels=c("Change in Max NDVI 1995-2014"),
           title="Regression Results", type="html", omit.stat=c("f","ser"), align=TRUE)
 
+
+
+bVars <- c("Treat","Treat_16","Treat_PPTAL", "terrai_are", "prelevel_pmean", "prelevel_pmin", "prelevel_pmax", "prelevel_tmean",
+           "prelevel_tmin", "prelevel_tmax", "prelevel_ndvimean", "prelevel_ndvimax", "prelevel_ntl",
+           "pretrend_pmean", "pretrend_pmin", "pretrend_pmax", "pretrend_tmean", "pretrend_tmin", "pretrend_tmax",
+           "pretrend_ndvimean", "pretrend_ndvimax", "pretrend_ntl", "Pop_1995", "Slope", "Elevation", "Riv_Dist", 
+           "Road_dist", "id","UF")
+
+
+matchit.replace_ever <- matchit(Treat_PPTAL ~ terrai_are + prelevel_pmean  + prelevel_tmean +
+                             pretrend_pmean + pretrend_pmin + pretrend_pmax + pretrend_tmean + pretrend_tmin + pretrend_tmax + 
+                             prelevel_ndvimax + pretrend_ndvimean+ pretrend_ndvimax+
+                             prelevel_ntl + pretrend_ntl+
+                             Pop_1995 + Slope + Elevation + Riv_Dist + Road_dist,
+                           data = dta_shp_ever@data[bVars],
+                           method = "nearest", distance="logit",replace=TRUE, exact="UF",discard="both")
+
+
+#prints the matchit results
+print(summary(matchit.replace_ever))
+
+#don't need to create pair ids because can't use pair fixed effects when matching with replacement
+#will use weights generated in match.data instead
+#create subset of dta_shp with only the matched data
+modelData_rep <- match.data(matchit.replace)
+dta_shp_subset_rep <- dta_shp
+dta_shp_subset_rep@data$id_present <- (dta_shp_subset_rep$id %in% modelData_rep$id)
+dta_shp_subset_rep@data <- dta_shp_subset_rep@data[dta_shp_subset_rep$id_present == TRUE,]
+
+#adds id, lfreq_tota, and pair_id variables to modelData, as well as all the posttrends
+modelData_rep <- merge.default(modelData_rep, dta_shp_subset_rep@data[c("posttrend_pmean", "posttrend_pmin", "posttrend_pmax", 
+                                                                        "posttrend_tmean", "posttrend_tmin", "posttrend_tmax", 
+                                                                        "posttrend_ntl", "id", "lfreq_tota", "ifreq_tota", 
+                                                                        "posttrend_lviolence", "posttrend_iviolence", 
+                                                                        "posttrend_ndvimean", "posttrend_ndvimax", "diff_ndvimax")], by = "id")
+
+#create variable to use for weighting in models (1/pscore * weight)
+modelData_rep$psmweight<-(1/modelData_rep$distance)*(modelData_rep$weights)
 
 
 
