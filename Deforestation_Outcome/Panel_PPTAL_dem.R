@@ -36,9 +36,10 @@ panel_data<-read.csv("Processed_Data/panel_data.csv")
 #Formatting Panel Dataset
 #---------------
 
-#subset to PPTAL lands ever demarcated 
+#subset to PPTAL lands demarcated by 2003
 panel_data_sub<-panel_data[!is.na(panel_data$demend_y),]
-#there should be 106 lands for each year using check below
+panel_data_sub<-panel_data_sub[panel_data_sub$demend_y<2003,]
+#there should be 66 lands for each year using check below
 #table(panel_data_sub$year)
 
 panel_data<-panel_data_sub
@@ -63,8 +64,6 @@ CMREG1
 Model2<- lm(MaxL ~ trt_dem + 
               lfreq + ifreq+
               Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
               ntl +
               factor(id),
             data=panel_data)
@@ -75,8 +74,6 @@ CMREG2
 Model3<- lm(MaxL ~ trt_dem + 
               lfreq + ifreq +
               Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
               ntl +
               year + factor(id),
             data=panel_data)
@@ -87,8 +84,6 @@ CMREG3
 Model4<- lm(MaxL ~ trt_dem +
               lfreq +ifreq+
               Pop +
-              MeanT + MinT + MaxT +
-              MeanP + MinP + MaxP +
               ntl +
               factor(year) + factor(id),
             data=panel_data)

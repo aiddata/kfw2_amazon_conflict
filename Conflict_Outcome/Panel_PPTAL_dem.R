@@ -38,12 +38,14 @@ panel_data<-read.csv("Processed_Data/panel_data.csv")
 
 #subset to PPTAL lands ever demarcated 
 panel_data_sub<-panel_data[!is.na(panel_data$demend_y),]
-#there should be 106 lands for each year using check below
+#subset to all lands demarcated before 2003, so treatment var in panel is years post demarcation
+panel_data_sub<-panel_data_sub[panel_data_sub$demend_y<2003,]
+#there should be 66 lands for each year using check below
 #table(panel_data_sub$year)
 
 panel_data<-panel_data_sub
 
-#Create treatment variable that measures years prior to or after demarcation
+#Create treatment variable that measures years after demarcation
 panel_data$trt_dem<-NA
 panel_data$trt_dem<-panel_data$year-panel_data$demend_y
 
@@ -59,31 +61,25 @@ Model1<- lm(lfreq ~ trt_dem + factor(id), data=panel_data)
 cluster1 <- cluster.vcov(Model1, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG1 <- coeftest(Model1, cluster1)
 
-Model2<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
+Model2<- lm(lfreq ~ trt_dem + ifreq+
+              Pop + 
+              ntl +
               factor(id),
             data=panel_data)
 cluster2 <- cluster.vcov(Model2, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG2 <- coeftest(Model2, cluster2)
 
-Model3<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl+
+Model3<- lm(lfreq ~ trt_dem + ifreq+
+              Pop + 
+              ntl+
               year + factor(id),
             data=panel_data)
 cluster3 <- cluster.vcov(Model3, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
 CMREG3 <- coeftest(Model3, cluster3)
 
-Model4<- lm(lfreq ~ trt_dem + 
-              MaxL + Pop + 
-              MeanT + MaxT + MinT +
-              MeanP + MaxP + MinP +
-              ifreq + ntl +
+Model4<- lm(lfreq ~ trt_dem + ifreq+
+              Pop + 
+              ntl +
               factor(year) + factor(id),
             data=panel_data)
 cluster4 <- cluster.vcov(Model4, cbind(panel_data$year, panel_data$id), force_posdef=TRUE)
@@ -97,10 +93,13 @@ CMREG4 <- coeftest(Model4, cluster4)
 
 stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
           type="html", align=TRUE,
+          omit=c("factor"),
           omit.stat=c("f","ser"),
-          add.lines=list(c("Observations","1272","1272","1272","1272"),
+          covariate.labels=c("Years Since Demarcation","Individual Violence",
+                             "Population","Nighttime Lights","Year"),
+          add.lines=list(c("Observations","792","792","792","792"),
                          c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
                          c("Year Fixed Effects?","No","No","No","Yes")),
-          title="PPTAL Regression Results: Demarcation Any Year",
+          title="PPTAL Regression Results: Demarcation Pre-2003",
           dep.var.labels=c("Land Conflict"))
 
