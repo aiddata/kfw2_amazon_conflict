@@ -43,7 +43,7 @@ panel_data_sub<-panel_data[!is.na(panel_data$dem_y16),]
 
 panel_data<-panel_data_sub
 
-#Create treatment var that measures years prior to or after demarcation
+#Create treatment var that measures years after demarcation
 panel_data$trt_dem<-NA
 panel_data$trt_dem<-panel_data$year-panel_data$dem_y16
 

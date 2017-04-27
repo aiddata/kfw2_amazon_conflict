@@ -96,10 +96,10 @@ stargazer(CMREG1,CMREG2,CMREG3,CMREG4,
           omit.stat=c("f","ser"),
           covariate.labels=c("Years Since Demarcation","Individual Violence",
                              "Population","Nighttime Lights","Year"),
-          add.lines=list(c("Observations","3708","3708","3708","3708"),
+          add.lines=list(c("Observations","1296","1296","1296","1296"),
                          c("Community Fixed Effects?","Yes","Yes","Yes","Yes"),
                          c("Year Fixed Effects?","No","No","No","Yes")),
-          title="Full Sample Regression Results: Ever Demarcated",
+          title="Full Sample Regression Results: Demarcated 1995-2003",
           dep.var.labels=c("Land Conflict"))
 
 
