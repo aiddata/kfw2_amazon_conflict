@@ -3,8 +3,8 @@ rm(list=ls())
 
 #set the working directory to where the files are stored - !CHANGE THIS TO YOUR OWN DIRECTORY!
 #setwd("/home/aiddata/Desktop/Github/kfw2_amazon_conflict/")
-#setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
-setwd("/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict")
+setwd("C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/")
+#setwd("/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict")
 
 
 #essential spatial view packages (load and project shapefiles etc...)
@@ -84,8 +84,8 @@ for (i in 2:length(df))
 }
 
 
-#Orders the dataframe columns alphabetically
-#df <- as.data.frame(df)[order(names(df))]
+#Orders the dataframe columns alphabetically - DO NOT REMOVE, this is key to getting reshape to work correctly
+df <- as.data.frame(df)[order(names(df))]
 
 #List the names of the variables in dta_shp
 #print(names(df))
@@ -104,7 +104,7 @@ print(grep("(.+)[0-9][0-9][0-9][0-9]$", names(df), value = TRUE))
 panel_data<-reshape(df,dir="long",varying=grep("(.+)[0-9][0-9][0-9][0-9]$", names(df), value = TRUE),sep="_")
 
 View(as.data.frame(panel_data)[1:100])
-View(as.data.frame(panel_data)[101:147])
+View(as.data.frame(panel_data)[101:150])
 
 #Rename variable "time" to "year"
 names(panel_data)[names(panel_data)=="time"]="year"
@@ -114,7 +114,7 @@ panel_data$ifreq[is.na(panel_data$ifreq)]<-0
 panel_data$lfreq[is.na(panel_data$lfreq)]<-0
 
 #Save panel data
-write.csv(panel_data,"/Users/rbtrichler/Documents/AidData/Git Repos/kfw2_amazon_conflict/Processed_Data/panel_data.csv")
+write.csv(panel_data,"C:/Users/jflak/OneDrive/GitHub/kfw2_amazon_conflict/Processed_Data/panel_data.csv")
 
 
 
